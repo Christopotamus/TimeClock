@@ -5,6 +5,7 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -13,13 +14,14 @@ import android.database.sqlite.SQLiteDatabase;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 
 
 public class MainActivity extends AppCompatActivity {
 
     private SQLiteDatabase trackDB;
-    private Task Tasks[];
+    private ArrayList<Task> Tasks;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,14 +49,17 @@ public class MainActivity extends AppCompatActivity {
 
             trackDB.execSQL("CREATE TABLE IF NOT EXISTS "
             + "TaskLog"
-            + " (TaskID INTEGER, TaskName TEXT, LogTime DATETIME);");
+            + " (TaskID INTEGER_PRIMARY_KEY, TaskName TEXT, LogTime DATETIME);");
 
+            trackDB.execSQL("INSERT INTO TaskLog VALUES('Started using TimeClock', date('now') );");
 
         }catch(Exception e) {
 
         }
     }
     private void selectRecentTasks(){
+
+        Log.d("DEBUG", "Selecting all recent tasks");
         try{
             if(trackDB.isOpen()){
                 Cursor c = trackDB.rawQuery("SELECT * FROM TaskLog LIMIT 10", null);
@@ -68,8 +73,11 @@ public class MainActivity extends AppCompatActivity {
                         String TaskName = c.getString(c_TaskName);
                         DateFormat dfmt = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
                         Date TaskDate = dfmt.parse(c.getString(c_LogTime));
-                        c.moveToNext();
-                    }while(c != null);
+                        Tasks.add(new Task(TaskName, TaskDate));
+                    }while(c.moveToNext());
+                }
+                for (Task t: Tasks){
+                    Log.d("DEBUG", t.getTaskName() +" at " + t.getTaskName());
                 }
             }
         }catch(Exception e){
