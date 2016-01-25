@@ -11,12 +11,15 @@ import android.view.MenuItem;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 
 public class MainActivity extends AppCompatActivity {
 
     private SQLiteDatabase trackDB;
+    private Task Tasks[];
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,8 +66,10 @@ public class MainActivity extends AppCompatActivity {
                 if(c != null){
                     do{
                         String TaskName = c.getString(c_TaskName);
-                        Date TaskDate = Date.parse(getString(c_LogTime));
-                    }
+                        DateFormat dfmt = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                        Date TaskDate = dfmt.parse(c.getString(c_LogTime));
+                        c.moveToNext();
+                    }while(c != null);
                 }
             }
         }catch(Exception e){
